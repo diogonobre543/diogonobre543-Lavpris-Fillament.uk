@@ -1,21 +1,25 @@
 /**
  * BILLIGT FILAMENT - JAVASCRIPT ENGINE 2026
- * Final Version: Skilteproduktion Edition
+ * Final Version: Skilteproduktion Edition (GBP Version)
  */
 
-const API_URL = 'https://www.datamarked.dk/?id=8016&apikey=AA99444E55D533FA3C0FB91A991CCA2C465F7C2BE0C89C4826A1852957DE2959';
+// 1. Configurações Iniciais e API
+const API_URL = 'https://www.datamarked.dk/?id=8016&apikey=C25D10ED19C35E369750E958D8647282588F2F653859BEF4514BD2A706735987';
 let allProducts = [];
 let activeCategory = 'all';
 
-// Category Filters
+// Filtros de Categoria
 const materialKeywords = ['PLA', 'PETG', 'SILK', 'ABS', 'TPU', 'ASA', 'NYLON', 'WOOD', 'CARBON'];
 const printerKeywords = ['PRINTER', 'CREALITY', 'BAMBU', 'ANYCUBIC', 'ENDER', 'VORON', 'ELEGOO', 'MACHINE', 'RESIN'];
 
-// Currency Formatting (Danish)
-const formatPrice = (p) => p.toLocaleString('da-DK', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+// --- FORMATAÇÃO DE MOEDA (LIBRAS ESTERLINAS £) ---
+const formatPrice = (p) => {
+    // Usa o padrão do Reino Unido (ponto decimal) e retorna com o símbolo £
+    return '£' + p.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+};
 
 /**
- * 1. MOBILE NAVIGATION (HAMBURGER)
+ * 1. NAVEGAÇÃO MOBILE (HAMBURGUER)
  */
 function initNavigation() {
     const hamburger = document.getElementById('hamburger');
@@ -26,12 +30,9 @@ function initNavigation() {
     hamburger.addEventListener('click', () => {
         hamburger.classList.toggle('open');
         mainNav.classList.toggle('active');
-        
-        // Prevent body scroll when menu is open
         document.body.style.overflow = mainNav.classList.contains('active') ? 'hidden' : 'auto';
     });
 
-    // Close menu when clicking a link
     const navLinks = mainNav.querySelectorAll('a');
     navLinks.forEach(link => {
         link.addEventListener('click', () => {
@@ -43,7 +44,7 @@ function initNavigation() {
 }
 
 /**
- * 2. LOAD DATA FROM API
+ * 2. CARREGAR DADOS DA API
  */
 async function loadProducts() {
     try {
@@ -52,6 +53,12 @@ async function loadProducts() {
 
         allProducts = data.map(i => {
             const titleUpper = i.title.toUpperCase();
+            
+            // Tratamento de preço para garantir que seja um número puro
+            let rawPrice = String(i.price || "0");
+            let cleanPrice = rawPrice.replace(/[^0-9,.]/g, '').replace(',', '.');
+            let finalPrice = parseFloat(cleanPrice) || 0;
+
             let cat = 'OTHER';
             if (printerKeywords.some(k => titleUpper.includes(k))) {
                 cat = 'PRINTER';
@@ -62,28 +69,27 @@ async function loadProducts() {
 
             return {
                 title: i.title,
-                price: parseFloat(String(i.price).replace(',', '.')),
+                price: finalPrice,
                 img: i.image,
                 link: i.link,
                 stock: parseInt(i.stock) || 0,
                 category: cat,
-                description: i.description || `High-quality ${cat} filament for professional 3D printing. This material ensures extreme precision, strong adhesion, and a smooth surface finish for all your projects.`
+                description: i.description || `High-quality ${cat} filament for professional 3D printing.`
             };
         });
 
-        // Initialize views
         renderHero();
         renderGrid();
         renderProductDetail();
         createFilterButtons();
 
     } catch (error) {
-        console.error("Error loading API:", error);
+        console.error("Erro ao carregar a API:", error);
     }
 }
 
 /**
- * 3. RENDER GRID (PRODUCT PAGE)
+ * 3. RENDERIZAR GRADE DE PRODUTOS
  */
 function renderGrid() {
     const grid = document.getElementById('productGrid');
@@ -101,7 +107,6 @@ function renderGrid() {
     if (sort === 'low') list.sort((a, b) => a.price - b.price);
     if (sort === 'high') list.sort((a, b) => b.price - a.price);
     
-    // Limit on Home
     if (window.location.pathname.includes('index.html') || window.location.pathname === '/') {
         if (search === '' && activeCategory === 'all') list = list.slice(0, 8);
     }
@@ -111,7 +116,7 @@ function renderGrid() {
             <div class="img-wrapper"><img src="${p.img}" loading="lazy" alt="${p.title}"></div>
             <div class="product-info">
                 <h3>${p.title}</h3>
-                <div class="price">${formatPrice(p.price)} kr.</div>
+                <div class="price">${formatPrice(p.price)}</div>
                 <div class="product-actions">
                     <a href="./product-detail.html?title=${encodeURIComponent(p.title)}" class="btn-details">Read more</a>
                     <a href="${p.link}" target="_blank" class="btn-buy">SKILTEPRODUKTION</a>
@@ -122,7 +127,7 @@ function renderGrid() {
 }
 
 /**
- * 4. RENDER PRODUCT DETAIL PAGE
+ * 4. PÁGINA DE DETALHES DO PRODUTO
  */
 function renderProductDetail() {
     const container = document.getElementById('product-detail-render');
@@ -143,7 +148,7 @@ function renderProductDetail() {
                 </span>
                 <h1 style="margin: 10px 0;">${product.title}</h1>
                 <div class="detail-price" style="font-size: 2rem; font-weight: 800; color: var(--primary); margin-bottom: 20px;">
-                    ${formatPrice(product.price)} kr.
+                    ${formatPrice(product.price)}
                 </div>
                 
                 <div class="meta-box" style="background: var(--ice); padding: 20px; border-radius: 12px; margin-bottom: 25px;">
@@ -158,7 +163,7 @@ function renderProductDetail() {
 
                 <a href="${product.link}" target="_blank" class="btn-buy" 
                    style="padding: 20px; font-size: 1.1rem; width: 100%; display: block; text-align: center; text-decoration: none; border-radius: 12px;">
-                   SKILTEPRODUKTION
+                    SKILTEPRODUKTION
                 </a>
             </div>
         `;
@@ -166,7 +171,7 @@ function renderProductDetail() {
 }
 
 /**
- * 5. HERO (HOME)
+ * 5. HERO (DESTAQUES NA HOME)
  */
 function renderHero() {
     const pBox = document.getElementById('hero-random-printer');
@@ -181,7 +186,7 @@ function renderHero() {
             <div class="img-wrapper" style="height: 160px;"><img src="${item.img}"></div>
             <div class="product-info" style="padding: 10px;">
                 <h3 style="font-size: 0.85rem; min-height: 2.2rem;">${item.title}</h3>
-                <div class="price" style="font-size: 1.1rem; margin-bottom: 10px;">${formatPrice(item.price)} kr.</div>
+                <div class="price" style="font-size: 1.1rem; margin-bottom: 10px;">${formatPrice(item.price)}</div>
                 <a href="./product-detail.html?title=${encodeURIComponent(item.title)}" class="btn-details" style="font-size: 0.75rem; padding: 8px; display: block;">View details</a>
             </div>
         </div>`;
@@ -191,7 +196,7 @@ function renderHero() {
 }
 
 /**
- * 6. FILTER BUTTONS
+ * 6. BOTÕES DE FILTRO
  */
 function createFilterButtons() {
     const box = document.getElementById('materialBoxes');
@@ -211,7 +216,7 @@ window.changeCategory = (cat) => {
     renderGrid();
 };
 
-// Global Init
+// Inicialização Global
 document.addEventListener('DOMContentLoaded', () => {
     initNavigation();
     loadProducts();
