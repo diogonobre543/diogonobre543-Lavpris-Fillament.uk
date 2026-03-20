@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="da">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Produkter | Billigt Filament</title>
+    <title>Products | Billigt Filament</title>
     <link rel="stylesheet" href="Assets/style.css">
 </head>
 <body>
@@ -18,36 +18,37 @@
             </button>
 
             <nav class="main-nav" id="main-nav">
-                <a href="index.html">Forside</a>
-                <a href="products.html" class="active">Produkter</a>
-                <a href="about.html">Om os</a>
+                <a href="index.html">Home</a>
+                <a href="products.html" class="active">Products</a>
+                <a href="about.html">About Us</a>
             </nav>
         </div>
     </header>
 
     <main class="container" style="padding: 60px 0;">
-        <h1 style="font-size: 2.8rem; margin-bottom: 40px; letter-spacing: -2px;">Vores Sortiment</h1>
+        <h1 style="font-size: 2.8rem; margin-bottom: 40px; letter-spacing: -2px;">Our Collection</h1>
 
         <div class="filters-wrapper">
             <div class="filter-row">
-                <div class="filter-group"> <label class="filter-label">Søg i kataloget</label>
-                    <input type="text" id="searchField" class="search-input" placeholder="Søg her...">
+                <div class="filter-group"> 
+                    <label class="filter-label">Search the catalog</label>
+                    <input type="text" id="searchField" class="search-input" placeholder="Search here...">
                 </div>
                 <div class="filter-group">
-                    <label class="filter-label">Sortér efter</label>
+                    <label class="filter-label">Sort by</label>
                     <select id="sortOrder" class="sort-select">
-                        <option value="default">Mest relevante</option>
-                        <option value="low">Pris: Lav til Høj</option>
-                        <option value="high">Pris: Høj til Lav</option>
+                        <option value="default">Most relevant</option>
+                        <option value="low">Price: Low to High</option>
+                        <option value="high">Price: High to Low</option>
                     </select>
                 </div>
             </div>
 
             <div class="material-selection">
-                <label class="filter-label">Vælg Kategori / Materiale</label>
+                <label class="filter-label">Select Category / Material</label>
                 <div class="material-boxes" id="materialBoxes">
-                    <button class="material-btn active" data-cat="all">Alle</button>
-                    <button class="material-btn" data-cat="PRINTER">3D Printere</button>
+                    <button class="material-btn active" data-cat="all">All</button>
+                    <button class="material-btn" data-cat="PRINTER">3D Printers</button>
                 </div>
             </div>
         </div>
@@ -57,7 +58,7 @@
 
     <footer class="site-footer">
         <div class="container">
-            <p>&copy; 2026 Billigt Filament ApS. Kvalitetsmaterialer til 3D print.</p>
+            <p>&copy; 2026 Billigt Filament ApS. Quality materials for 3D printing.</p>
         </div>
     </footer>
     
