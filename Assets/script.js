@@ -1,25 +1,25 @@
 /**
  * BILLIGT FILAMENT - JAVASCRIPT ENGINE 2026
- * Final Version: Skilteproduktion Edition (GBP Version)
+ * Final Version: Skilteproduksjon Edition (GBP Version)
+ * FOCUS: Price correction (saleprice) and button label update
  */
 
-// 1. Configurações Iniciais e API
+// 1. Initial Settings and API
 const API_URL = 'https://www.datamarked.dk/?id=8016&apikey=C25D10ED19C35E369750E958D8647282588F2F653859BEF4514BD2A706735987';
 let allProducts = [];
 let activeCategory = 'all';
 
-// Filtros de Categoria
+// Category Filters
 const materialKeywords = ['PLA', 'PETG', 'SILK', 'ABS', 'TPU', 'ASA', 'NYLON', 'WOOD', 'CARBON'];
 const printerKeywords = ['PRINTER', 'CREALITY', 'BAMBU', 'ANYCUBIC', 'ENDER', 'VORON', 'ELEGOO', 'MACHINE', 'RESIN'];
 
-// --- FORMATAÇÃO DE MOEDA (LIBRAS ESTERLINAS £) ---
+// --- CURRENCY FORMATTING (BRITISH POUNDS £) ---
 const formatPrice = (p) => {
-    // Usa o padrão do Reino Unido (ponto decimal) e retorna com o símbolo £
     return '£' + p.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 };
 
 /**
- * 1. NAVEGAÇÃO MOBILE (HAMBURGUER)
+ * 1. MOBILE NAVIGATION (HAMBURGER)
  */
 function initNavigation() {
     const hamburger = document.getElementById('hamburger');
@@ -44,7 +44,7 @@ function initNavigation() {
 }
 
 /**
- * 2. CARREGAR DADOS DA API
+ * 2. LOAD DATA FROM API (WITH SALEPRICE LOGIC)
  */
 async function loadProducts() {
     try {
@@ -52,12 +52,21 @@ async function loadProducts() {
         const data = await response.json();
 
         allProducts = data.map(i => {
-            const titleUpper = i.title.toUpperCase();
+            const titleUpper = (i.title || "").toUpperCase();
             
-            // Tratamento de preço para garantir que seja um número puro
-            let rawPrice = String(i.price || "0");
-            let cleanPrice = rawPrice.replace(/[^0-9,.]/g, '').replace(',', '.');
-            let finalPrice = parseFloat(cleanPrice) || 0;
+            // Internal function to clean price strings from API
+            const cleanPrice = (val) => {
+                if (!val) return 0;
+                let s = String(val).replace(/[^\d.,]/g, '');
+                if (s.includes('.') && s.includes(',')) s = s.replace(/\./g, '');
+                return parseFloat(s.replace(',', '.')) || 0;
+            };
+
+            const pNormal = cleanPrice(i.price);
+            const pSale = cleanPrice(i.saleprice);
+
+            // Use saleprice if it exists and is greater than 0
+            let finalPrice = (pSale > 0) ? pSale : pNormal;
 
             let cat = 'OTHER';
             if (printerKeywords.some(k => titleUpper.includes(k))) {
@@ -84,12 +93,12 @@ async function loadProducts() {
         createFilterButtons();
 
     } catch (error) {
-        console.error("Erro ao carregar a API:", error);
+        console.error("Error loading API:", error);
     }
 }
 
 /**
- * 3. RENDERIZAR GRADE DE PRODUTOS
+ * 3. RENDER PRODUCT GRID
  */
 function renderGrid() {
     const grid = document.getElementById('productGrid');
@@ -119,7 +128,7 @@ function renderGrid() {
                 <div class="price">${formatPrice(p.price)}</div>
                 <div class="product-actions">
                     <a href="./product-detail.html?title=${encodeURIComponent(p.title)}" class="btn-details">Read more</a>
-                    <a href="${p.link}" target="_blank" class="btn-buy">SKILTEPRODUKTION</a>
+                    <a href="${p.link}" target="_blank" class="btn-buy">BUY NOW</a>
                 </div>
             </div>
         </article>
@@ -127,7 +136,7 @@ function renderGrid() {
 }
 
 /**
- * 4. PÁGINA DE DETALHES DO PRODUTO
+ * 4. PRODUCT DETAIL PAGE
  */
 function renderProductDetail() {
     const container = document.getElementById('product-detail-render');
@@ -162,8 +171,8 @@ function renderProductDetail() {
                 </div>
 
                 <a href="${product.link}" target="_blank" class="btn-buy" 
-                   style="padding: 20px; font-size: 1.1rem; width: 100%; display: block; text-align: center; text-decoration: none; border-radius: 12px;">
-                    SKILTEPRODUKTION
+                    style="padding: 20px; font-size: 1.1rem; width: 100%; display: block; text-align: center; text-decoration: none; border-radius: 12px;">
+                    BUY NOW
                 </a>
             </div>
         `;
@@ -171,7 +180,7 @@ function renderProductDetail() {
 }
 
 /**
- * 5. HERO (DESTAQUES NA HOME)
+ * 5. HERO (HOME HIGHLIGHTS)
  */
 function renderHero() {
     const pBox = document.getElementById('hero-random-printer');
@@ -196,7 +205,7 @@ function renderHero() {
 }
 
 /**
- * 6. BOTÕES DE FILTRO
+ * 6. FILTER BUTTONS
  */
 function createFilterButtons() {
     const box = document.getElementById('materialBoxes');
@@ -216,7 +225,7 @@ window.changeCategory = (cat) => {
     renderGrid();
 };
 
-// Inicialização Global
+// Global Initialization
 document.addEventListener('DOMContentLoaded', () => {
     initNavigation();
     loadProducts();
